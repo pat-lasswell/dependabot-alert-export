@@ -1,3 +1,8 @@
+// built-in used to ensure the csv doesn't exist
+// otherwise repeated uses of this action will append
+// to the target file
+const fs = require('fs').promises;
+
 // libs for github & graphql
 const core = require('@actions/core');
 const github = require('@actions/github');
@@ -160,6 +165,8 @@ async function run(org_Name, repo_Name, csv_path) {
 
   try {
     await makeDir(dirname(csv_path));
+    try { await fs.unlink(csv_path) } catch (err) {}
+
     do {
       // invoke the graphql query execution
       await getAlerts(org_Name, repo_Name, pagination).then(alertResult => {
